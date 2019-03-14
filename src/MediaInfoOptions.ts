@@ -9,5 +9,6 @@ export interface MediaInfoOptions {
   executable: string
   full: boolean
   language: string
-  output: OutputType
+  maxBufferSize?: number
+  output?: OutputType
 }

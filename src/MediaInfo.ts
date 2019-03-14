@@ -1,15 +1,16 @@
-import { fs } from '@nofrills/fs'
 import { exec, ExecOptions } from 'child_process'
 
+import { Logger } from './Logging'
 import { MediaInfoOptions, OutputType } from './MediaInfoOptions'
+import { xml2json } from 'xml-js'
 
 const DefaultMediaInfoOptions: MediaInfoOptions = {
   bom: false,
   details: 1,
   executable: '/usr/bin/mediainfo',
-  full: true,
+  full: false,
   language: 'raw',
-  output: OutputType.Xml,
+  maxBufferSize: 1024 * 1024 * 10,
 }
 
 export class MediaInfo {
@@ -27,34 +28,61 @@ export class MediaInfo {
     return this.exec(filename)
   }
 
+  async html(filename: string): Promise<string> {
+    const results = await this.exec(filename, `--Output=${OutputType.Html}`)
+    return results.join('\n')
+  }
+
+  async json(filename: string): Promise<{}> {
+    const xml = await this.xml(filename)
+    const json = xml2json(xml)
+    return JSON.parse(json)
+  }
+
+  async xml(filename: string): Promise<string> {
+    const results = await this.exec(filename, `--Output=${OutputType.Xml}`)
+    return results.join('\n')
+  }
+
   version(): Promise<string[]> {
     return this.exec('', '--Version')
   }
 
   protected exec(filename: string, ...args: string[]): Promise<string[]> {
-    const argopts = [...args]
-
-    if (this.options.bom) {
-      argopts.push('--BOM')
-    }
-
-    if (this.options.full) {
-      argopts.push('--Full')
-    }
-
-    argopts.push(`--Details=${this.options.details}`)
-    argopts.push(`--Language=${this.options.language}`)
-    argopts.push(`--Output=${this.options.output}`)
-
-    const command = [this.options.executable, ...args, filename].join(' ')
-    const options: ExecOptions = {
-      windowsHide: true,
-    }
-
     return new Promise<string[]>((resolve, reject) => {
-      exec(command, options, (error, stdout, stderr) => {
+      const argopts = [...args]
+
+      if (this.options.bom && args.every(opt => opt.toUpperCase() === '--BOM') === false) {
+        argopts.push('--BOM')
+      }
+
+      if (this.options.full && args.every(opt => opt.toUpperCase() === '--FULL') === false) {
+        argopts.push('--Full')
+      }
+
+      if (args.every(opt => opt.toUpperCase().startsWith('--DETAILS=') === false)) {
+        argopts.push(`--Details=${this.options.details}`)
+      }
+
+      if (args.every(opt => opt.toUpperCase().startsWith('--LANGUAGE=') === false)) {
+        argopts.push(`--Language=${this.options.language}`)
+      }
+
+      if (args.every(opt => opt.toUpperCase().startsWith('--OUTPUT=') === false)) {
+        argopts.push(`--Output=${this.options.output}`)
+      }
+
+      const command = [this.options.executable, ...argopts, filename].join(' ')
+      Logger.debug(command)
+
+      const options: ExecOptions = {
+        maxBuffer: this.options.maxBufferSize,
+        windowsHide: true,
+      }
+
+      exec(command, options, (error, stdout) => {
         if (error) {
-          reject(new Error(stderr))
+          reject(error)
         } else {
           resolve(this.split(stdout))
         }

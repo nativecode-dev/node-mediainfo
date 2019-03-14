@@ -2,7 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
+    "baseUrl": "src",
     "declaration": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
@@ -12,10 +12,12 @@
     "moduleResolution": "node",
     "noImplicitAny": true,
     "outDir": "lib",
+    "rootDir": ".",
     "sourceMap": true,
     "strictNullChecks": true,
     "target": "es5",
     "lib": [
+      "dom",
       "es2018"
     ],
     "typeRoots": [
@@ -26,6 +28,7 @@
     "node_modules",
   ],
   "include": [
+    "specs",
     "src"
   ]
 }
