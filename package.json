@@ -1,0 +1,53 @@
+{
+  "author": "opensource@nativecode.com",
+  "description": "",
+  "license": "MIT",
+  "keywords": [],
+  "main": "lib/MediaInfo",
+  "name": "@nativecode/mediainfo",
+  "version": "0.0.0",
+  "dependencies": {
+    "@nofrills/fs": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/chai-as-promised": "^7.1.0",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.11.3",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "coveralls": "^3.0.3",
+    "cross-env": "^5.2.0",
+    "mocha": "^6.0.2",
+    "nyc": "^13.3.0",
+    "prettier": "^1.16.4",
+    "rimraf": "^2.6.3",
+    "ts-node": "^8.0.3",
+    "tslint": "^5.14.0",
+    "tslint-config-standard": "^8.0.1",
+    "tslint-no-unused-expression-chai": "^0.1.4",
+    "typescript": "^3.3.3333"
+  },
+  "nyc": {
+    "all": true,
+    "exclude": [
+      "node_modules"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "include": [
+      "./src/**/*.ts"
+    ],
+    "instrument": true,
+    "report-dir": ".cache/coverage",
+    "reporter": "text",
+    "sourceMap": true,
+    "temp-directory": ".cache/nyc"
+  },
+  "scripts": {
+    "build": "rimraf lib && tsc --project tsconfig.json",
+    "test": "cross-env DEBUG= nyc mocha --opts mocha.opts",
+    "pretest": "npm run build"
+  }
+}
