@@ -3,6 +3,7 @@ import { exec, ExecOptions } from 'child_process'
 import { Logger } from './Logging'
 import { MediaInfoOptions, OutputType } from './MediaInfoOptions'
 import { xml2json } from 'xml-js'
+import { MediaInfoXml } from './Interfaces/MediaInfoXml'
 
 const DefaultMediaInfoOptions: MediaInfoOptions = {
   bom: false,
@@ -33,7 +34,7 @@ export class MediaInfo {
     return results.join('\n')
   }
 
-  async json(filename: string): Promise<{}> {
+  async json(filename: string): Promise<MediaInfoXml> {
     const xml = await this.xml(filename)
     const json = xml2json(xml)
     return JSON.parse(json)
@@ -51,26 +52,7 @@ export class MediaInfo {
   protected exec(filename: string, ...args: string[]): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
       const argopts = [...args]
-
-      if (this.options.bom && args.every(opt => opt.toUpperCase() === '--BOM') === false) {
-        argopts.push('--BOM')
-      }
-
-      if (this.options.full && args.every(opt => opt.toUpperCase() === '--FULL') === false) {
-        argopts.push('--Full')
-      }
-
-      if (args.every(opt => opt.toUpperCase().startsWith('--DETAILS=') === false)) {
-        argopts.push(`--Details=${this.options.details}`)
-      }
-
-      if (args.every(opt => opt.toUpperCase().startsWith('--LANGUAGE=') === false)) {
-        argopts.push(`--Language=${this.options.language}`)
-      }
-
-      if (args.every(opt => opt.toUpperCase().startsWith('--OUTPUT=') === false)) {
-        argopts.push(`--Output=${this.options.output}`)
-      }
+      this.configureOptions(args, argopts)
 
       const command = [this.options.executable, ...argopts, filename].join(' ')
       Logger.debug(command)
@@ -88,6 +70,35 @@ export class MediaInfo {
         }
       })
     })
+  }
+
+  private configureOptions(args: string[], opts: string[]): void {
+    const pushBOM = args.every(opt => opt.toUpperCase() === '--BOM') === false
+    const pushDetails = args.every(opt => opt.toUpperCase().startsWith('--DETAILS=') === false)
+    const pushFull = args.every(opt => opt.toUpperCase() === '--FULL') === false
+    const pushLanguage = args.every(opt => opt.toUpperCase().startsWith('--LANGUAGE=') === false)
+    const pushOutput = args.every(opt => opt.toUpperCase().startsWith('--OUTPUT=') === false)
+    const hasVersion = args.some(opt => opt === '--Version')
+
+    if (this.options.bom && pushBOM && hasVersion === false) {
+      opts.push('--BOM')
+    }
+
+    if (this.options.full && pushFull && hasVersion === false) {
+      opts.push('--Full')
+    }
+
+    if (pushDetails && hasVersion === false) {
+      opts.push(`--Details=${this.options.details}`)
+    }
+
+    if (pushLanguage && hasVersion === false) {
+      opts.push(`--Language=${this.options.language}`)
+    }
+
+    if (pushOutput && hasVersion === false) {
+      opts.push(`--Output=${this.options.output}`)
+    }
   }
 
   private split(text: string): string[] {

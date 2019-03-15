@@ -3,7 +3,9 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "baseUrl": "src",
+    "composite": true,
     "declaration": true,
+    "declarationMap": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
@@ -30,5 +32,10 @@
   "include": [
     "specs",
     "src"
-  ]
+  ],
+  "references": [{
+    "path": "specs/tsconfig.json"
+  }, {
+    "path": "src/tsconfig.json"
+  }]
 }
