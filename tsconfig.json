@@ -2,7 +2,6 @@
   "compileOnSave": false,
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "src",
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -13,7 +12,6 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "outDir": "lib",
     "rootDir": ".",
     "sourceMap": true,
     "strictNullChecks": true,
@@ -23,19 +21,17 @@
       "es2018"
     ],
     "typeRoots": [
-      "./node_modules/@types",
+      "./node_modules/@types"
     ]
   },
   "exclude": [
-    "node_modules",
+    "node_modules"
   ],
   "include": [
     "specs",
     "src"
   ],
   "references": [{
-    "path": "specs/tsconfig.json"
-  }, {
-    "path": "src/tsconfig.json"
+    "path": "./src/tsconfig.json"
   }]
 }

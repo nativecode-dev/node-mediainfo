@@ -1,9 +1,8 @@
+import { xml2js } from 'xml-js'
 import { exec, ExecOptions } from 'child_process'
 
 import { Logger } from './Logging'
 import { MediaInfoOptions, OutputType } from './MediaInfoOptions'
-import { xml2json } from 'xml-js'
-import { MediaInfoXml } from './Interfaces/MediaInfoXml'
 
 const DefaultMediaInfoOptions: MediaInfoOptions = {
   bom: false,
@@ -34,10 +33,9 @@ export class MediaInfo {
     return results.join('\n')
   }
 
-  async json(filename: string): Promise<MediaInfoXml> {
+  async objectLiteral(filename: string): Promise<Element> {
     const xml = await this.xml(filename)
-    const json = xml2json(xml)
-    return JSON.parse(json)
+    return xml2js(xml) as Element
   }
 
   async xml(filename: string): Promise<string> {

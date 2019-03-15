@@ -4,7 +4,6 @@ import { fs } from '@nofrills/fs'
 
 import expect from './expect'
 import { MediaInfo } from '../src/MediaInfo'
-import { MediaInfoMapper } from '../src/MediaInfoMapper'
 
 @suite
 class MediaInfoSpec {
@@ -20,11 +19,9 @@ class MediaInfoSpec {
 
   @test('should get media info output as json')
   async shouldGetMediaInfoJson() {
-    const json = await this.mediainfo.json(MediaInfoSpec.videofile)
+    const json = await this.mediainfo.objectLiteral(MediaInfoSpec.videofile)
     await fs.writeFile(`${MediaInfoSpec.videofile}.json`, JSON.stringify(json))
-    const mapper = new MediaInfoMapper()
-    const mapped = mapper.map(json)
-    console.log(mapped)
+    console.log(json)
     expect(json).not.empty
   }
 
