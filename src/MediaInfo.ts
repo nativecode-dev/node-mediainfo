@@ -1,4 +1,5 @@
-import { xml2js } from 'xml-js'
+import { parseString, OptionsV2 } from 'xml2js'
+import { Element, Options, xml2js } from 'xml-js'
 import { exec, ExecOptions } from 'child_process'
 
 import { Logger } from './Logging'
@@ -12,6 +13,16 @@ const DefaultMediaInfoOptions: MediaInfoOptions = {
   language: 'raw',
   maxBufferSize: 1024 * 1024 * 10,
 }
+
+function camelize(str: string): string {
+  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+    // if (+match === 0) return '' // or if (/\s+/.test(match)) for white spaces
+    if (/\s+/.test(match)) return ''
+    return index == 0 ? match.toLowerCase() : match.toUpperCase()
+  })
+}
+
+const isNumeric = (n: any) => !isNaN(parseFloat(n)) && isFinite(n)
 
 export class MediaInfo {
   private readonly options: MediaInfoOptions
@@ -33,14 +44,35 @@ export class MediaInfo {
     return results.join('\n')
   }
 
-  async objectLiteral(filename: string): Promise<Element> {
+  async object(filename: string): Promise<Element> {
     const xml = await this.xml(filename)
-    return xml2js(xml) as Element
+    const options: Options.XML2JS = {
+      compact: false,
+    }
+    return xml2js(xml, options) as Element
   }
 
   async xml(filename: string): Promise<string> {
     const results = await this.exec(filename, `--Output=${OutputType.Xml}`)
-    return results.join('\n')
+    const xml = results.join('\n')
+
+    const options: OptionsV2 = {
+      attrNameProcessors: [name => `${name}`],
+      explicitArray: false,
+      explicitRoot: false,
+      mergeAttrs: true,
+      normalizeTags: true,
+      tagNameProcessors: [camelize],
+    }
+
+    parseString(xml, options, (error, result) => {
+      if (error) {
+        return
+      }
+      console.log(this.transform(result))
+    })
+
+    return xml
   }
 
   version(): Promise<string[]> {
@@ -105,5 +137,25 @@ export class MediaInfo {
       .split('\n')
       .map(x => x.trim())
       .filter(x => x !== '')
+  }
+
+  private mapValue(value: any): any {
+    const ret = Array.isArray(value) ? value[0] : value
+    return isNumeric(ret) ? ret * 1 : ret
+  }
+
+  private mapValues(entries: any[], callback: (value: any) => any) {
+    Object.entries(entries).reduce((a: any, [key, value]) => {
+      a[key] = callback(value)
+      return a
+    }, {})
+  }
+
+  private transform(res: any): any {
+    if (res && res.file) {
+      const tracks: any[] = Array.isArray(res.file.track) ? res.file.track : [res.file.track]
+      res.file.track = tracks.map(track => this.mapValues(track, this.mapValue))
+    }
+    return res
   }
 }

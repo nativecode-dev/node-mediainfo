@@ -2,7 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "composite": true,
+    "composite": false,
     "declaration": true,
     "declarationMap": true,
     "emitDecoratorMetadata": true,
@@ -12,12 +12,14 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
+    "pretty": true,
+    "resolveJsonModule": true,
     "rootDir": ".",
     "sourceMap": true,
     "strictNullChecks": true,
-    "target": "es5",
+    "strictPropertyInitialization": true,
+    "target": "es2016",
     "lib": [
-      "dom",
       "es2018"
     ],
     "typeRoots": [
@@ -30,8 +32,5 @@
   "include": [
     "specs",
     "src"
-  ],
-  "references": [{
-    "path": "./src/tsconfig.json"
-  }]
+  ]
 }

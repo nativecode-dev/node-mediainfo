@@ -19,9 +19,8 @@ class MediaInfoSpec {
 
   @test('should get media info output as json')
   async shouldGetMediaInfoJson() {
-    const json = await this.mediainfo.objectLiteral(MediaInfoSpec.videofile)
-    await fs.writeFile(`${MediaInfoSpec.videofile}.json`, JSON.stringify(json))
-    console.log(json)
+    const json = await this.mediainfo.object(MediaInfoSpec.videofile)
+    await fs.save(`${MediaInfoSpec.videofile}.json`, json)
     expect(json).not.empty
   }
 
