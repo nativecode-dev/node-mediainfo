@@ -7,7 +7,7 @@ import { MediaInfo } from '../src/MediaInfo'
 
 @suite
 class MediaInfoSpec {
-  static readonly videofile = fs.join(__dirname, '../.cache', 'sample-video.mp4')
+  static readonly videofile = fs.join(__dirname, '../assets', 'sample-video.mp4')
 
   private readonly mediainfo = new MediaInfo()
 

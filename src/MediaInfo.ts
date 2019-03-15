@@ -15,11 +15,9 @@ const DefaultMediaInfoOptions: MediaInfoOptions = {
 }
 
 function camelize(str: string): string {
-  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
-    // if (+match === 0) return '' // or if (/\s+/.test(match)) for white spaces
-    if (/\s+/.test(match)) return ''
-    return index == 0 ? match.toLowerCase() : match.toUpperCase()
-  })
+  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
+    /\s+/.test(match) ? '' : index === 0 ? match.toLowerCase() : match.toUpperCase(),
+  )
 }
 
 const isNumeric = (n: any) => !isNaN(parseFloat(n)) && isFinite(n)
@@ -103,9 +101,9 @@ export class MediaInfo {
   }
 
   private configureOptions(args: string[], opts: string[]): void {
-    const pushBOM = args.every(opt => opt.toUpperCase() === '--BOM') === false
+    const pushBOM = args.every(opt => opt.toUpperCase() !== '--BOM')
     const pushDetails = args.every(opt => opt.toUpperCase().startsWith('--DETAILS=') === false)
-    const pushFull = args.every(opt => opt.toUpperCase() === '--FULL') === false
+    const pushFull = args.every(opt => opt.toUpperCase() !== '--FULL')
     const pushLanguage = args.every(opt => opt.toUpperCase().startsWith('--LANGUAGE=') === false)
     const pushOutput = args.every(opt => opt.toUpperCase().startsWith('--OUTPUT=') === false)
     const hasVersion = args.some(opt => opt === '--Version')
