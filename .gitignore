@@ -1,6 +1,4 @@
-*.avi
-*.mp4
-*.mkv
+assets/*.json
 
 .artifacts
 .cache
