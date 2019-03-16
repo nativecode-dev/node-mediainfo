@@ -14,6 +14,7 @@ class MediaInfoSpec {
   @test('should get media info output')
   async shouldGetMediaInfo() {
     const results = await this.mediainfo.info(MediaInfoSpec.videofile)
+    await fs.writeFile(`${MediaInfoSpec.videofile}.txt`, results.join('\n'))
     expect(results).not.empty
   }
 
