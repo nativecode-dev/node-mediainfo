@@ -1,5 +1,5 @@
 #!/bin/bash
 
 echo "[CLEAN]"
-# rimraf .cache
+rimraf .cache
 rimraf lib
