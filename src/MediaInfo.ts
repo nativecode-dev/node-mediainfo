@@ -1,4 +1,3 @@
-import { parseString, OptionsV2 } from 'xml2js'
 import { Element, Options, xml2js } from 'xml-js'
 import { exec, ExecOptions } from 'child_process'
 
@@ -13,14 +12,6 @@ const DefaultMediaInfoOptions: MediaInfoOptions = {
   language: 'raw',
   maxBufferSize: 1024 * 1024 * 10,
 }
-
-function camelize(str: string): string {
-  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
-    /\s+/.test(match) ? '' : index === 0 ? match.toLowerCase() : match.toUpperCase(),
-  )
-}
-
-const isNumeric = (n: any) => !isNaN(parseFloat(n)) && isFinite(n)
 
 export class MediaInfo {
   private readonly options: MediaInfoOptions
@@ -52,25 +43,7 @@ export class MediaInfo {
 
   async xml(filename: string): Promise<string> {
     const results = await this.exec(filename, `--Output=${OutputType.Xml}`)
-    const xml = results.join('\n')
-
-    const options: OptionsV2 = {
-      attrNameProcessors: [name => `${name}`],
-      explicitArray: false,
-      explicitRoot: false,
-      mergeAttrs: true,
-      normalizeTags: true,
-      tagNameProcessors: [camelize],
-    }
-
-    parseString(xml, options, (error, result) => {
-      if (error) {
-        return
-      }
-      console.log(this.transform(result))
-    })
-
-    return xml
+    return results.join('\n')
   }
 
   version(): Promise<string[]> {
@@ -135,25 +108,5 @@ export class MediaInfo {
       .split('\n')
       .map(x => x.trim())
       .filter(x => x !== '')
-  }
-
-  private mapValue(value: any): any {
-    const ret = Array.isArray(value) ? value[0] : value
-    return isNumeric(ret) ? ret * 1 : ret
-  }
-
-  private mapValues(entries: any[], callback: (value: any) => any) {
-    Object.entries(entries).reduce((a: any, [key, value]) => {
-      a[key] = callback(value)
-      return a
-    }, {})
-  }
-
-  private transform(res: any): any {
-    if (res && res.file) {
-      const tracks: any[] = Array.isArray(res.file.track) ? res.file.track : [res.file.track]
-      res.file.track = tracks.map(track => this.mapValues(track, this.mapValue))
-    }
-    return res
   }
 }
